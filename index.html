@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    li {
+      height: 30px;
+      line-height: 30px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div style="width: 600px;height:800px;border:1px solid #ccc;background-color:#fcfcfc;">
+    <ul style="list-style: none;width:100%;height:100%;margin:0;padding:0;overflow-y: auto">
+      
+    </ul>
+  </div>
+
+  <input type="text" id="inp" /><button id="sendBtn" onclick="send()">发送</button><span class="tip" style="color:#f40;margin: 0 20px;"></span>
+<script>
+  const ws = new WebSocket('ws://localhost:3000')
+  const inp = document.getElementById('inp')
+  const sendBtn = document.getElementById('sendBtn')
+  const ul = document.querySelector('ul')
+  function send() {
+    ws.send(inp.value)
+    appendSelfMsg(inp.value)
+  }
+  function appendMsg(msg) {
+    let li = document.createElement('li')
+    let div = document.createElement('div')
+    let p = document.createElement('p')
+    ul.appendChild(li)
+    div.style = 'width:16px;height:16px;border-radius:50%;margin:0 10px;background-color:#' + Math.random().toString(16).slice(5,11) + ';'
+    p.innerHTML = msg
+    li.appendChild(div)
+    li.appendChild(p)
+  }
+
+  let selfFlag = Math.random().toString(16).slice(5,11) // 全局定义唯一标识的颜色
+  function appendSelfMsg(msg) {
+    let li = document.createElement('li')
+    let div = document.createElement('div')
+    let p = document.createElement('p')
+    li.style = 'flex-direction: row-reverse;'
+    ul.appendChild(li)
+    div.style = 'width:16px;height:16px;margin:0 10px;background-color:#' + selfFlag
+    p.innerHTML = msg
+    li.appendChild(div)
+    li.appendChild(p)
+  }
+
+  ws.onopen = function () {
+    console.log('客户端ws打开')
+    // ws.send('客户端已open')
+  }
+
+  ws.onmessage = function (res) {
+    console.log('已接收:', res.data)
+    appendMsg(res.data)
+  }
+
+  ws.onclose = function () {
+    console.log('服务端ws已关闭');
+  }
+
+  ws.onerror = function () {
+    console.log('服务端连接异常');
+    document.querySelector('.tip').innerHTML = '服务端连接异常'
+  }
+
+  document.addEventListener('keydown', (e)=>{
+    if (e.keyCode === 13) {
+      sendBtn.click()
+    }
+  })
+
+</script>
+</body>
+</html>
