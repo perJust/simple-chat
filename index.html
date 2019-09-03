@@ -28,37 +28,51 @@
   const inp = document.getElementById('inp')
   const sendBtn = document.getElementById('sendBtn')
   const ul = document.querySelector('ul')
+  let close = true 
   function send() {
-    ws.send(inp.value)
+    if(close) return ;
+    if(inp.value === '' && !close) {
+      document.querySelector('.tip').innerHTML = '请输入内容'
+      return ;
+    }
+    if(document.querySelector('.tip').innerHTML === '请输入内容'  && !close) {
+      document.querySelector('.tip').innerHTML = ''
+    }
+    ws.send(inp.value + '#flag#' + selfFlag)  // 前台模拟的  增加本机的唯一标识传入
     appendSelfMsg(inp.value)
+    inp.value = '' // 输入框清空
   }
   function appendMsg(msg) {
     let li = document.createElement('li')
     let div = document.createElement('div')
     let p = document.createElement('p')
     ul.appendChild(li)
-    div.style = 'width:16px;height:16px;border-radius:50%;margin:0 10px;background-color:#' + Math.random().toString(16).slice(5,11) + ';'
-    p.innerHTML = msg
+    let senderFlag = msg.split('#flag#')[1] // 取出发送者的唯一标识
+    let senderMsg = msg.split('#flag#')[0] // 取出发送者的内容
+    div.style = 'width:16px;height:16px;border-radius:50%;margin:0 10px;background-color:#' + senderFlag + ';'
+    p.innerHTML = senderMsg
     li.appendChild(div)
     li.appendChild(p)
   }
 
-  let selfFlag = Math.random().toString(16).slice(5,11) // 全局定义唯一标识的颜色
+  let selfFlag = Math.random().toString(16).slice(5,11) // 全局定义唯一标识的颜色  也定义聊天室内唯一标识颜色
   function appendSelfMsg(msg) {
     let li = document.createElement('li')
     let div = document.createElement('div')
     let p = document.createElement('p')
     li.style = 'flex-direction: row-reverse;'
     ul.appendChild(li)
-    div.style = 'width:16px;height:16px;margin:0 10px;background-color:#' + selfFlag
+    div.style = 'width:16px;height:16px;margin:0 10px;background-color:#' + selfFlag + ';'
     p.innerHTML = msg
     li.appendChild(div)
     li.appendChild(p)
   }
 
   ws.onopen = function () {
+    close = false
     console.log('客户端ws打开')
     // ws.send('客户端已open')
+    document.querySelector('.tip').innerHTML = '' // 先将提示清空
   }
 
   ws.onmessage = function (res) {
@@ -67,10 +81,13 @@
   }
 
   ws.onclose = function () {
+    close = true
     console.log('服务端ws已关闭');
+    document.querySelector('.tip').innerHTML = '服务端连接关闭'
   }
 
   ws.onerror = function () {
+    close = true
     console.log('服务端连接异常');
     document.querySelector('.tip').innerHTML = '服务端连接异常'
   }
