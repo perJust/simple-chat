@@ -1,13 +1,25 @@
+const fs = require('fs')
+const express = require('express')
 
-// const express = require('express')
-
-// const app = express()
+const app = express()
 
 // app.use('/', express.static('/'))
 
+app.get('/', (req, res)=>{
+  fs.readFile('./index.html', (err,data)=>{
+    if(err){
+      res.status(500).end()
+    }
+    res.set('Content-Type', 'text/html; charset=utf-8');
+    res.end(data)
+  })
+})
+
+app.listen(3000)
+
 const WebSocket = require('ws');
  
-const ws = new WebSocket.Server({ port: 3000 }, function (){
+const ws = new WebSocket.Server({ port: 3001 }, function (){
   console.log('服务端开启ws')
 });
 
@@ -49,5 +61,3 @@ ws.on('close', function () {
 ws.on('error', function (err) {
   console.log('服务端连接错误:', err)
 })
-
-// app.listen(3000)
