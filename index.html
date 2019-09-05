@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <title>简易聊天室</title>
   <style>
     li {
       height: 30px;
@@ -16,7 +16,7 @@
   </style>
 </head>
 <body>
-  <div style="width: 600px;height:800px;border:1px solid #ccc;background-color:#fcfcfc;">
+  <div style="width: 100%;height:500px;border:1px solid #ccc;background-color:#fcfcfc;">
     <ul style="list-style: none;width:100%;height:100%;margin:0;padding:0;overflow-y: auto">
       
     </ul>
@@ -24,7 +24,7 @@
 
   <input type="text" id="inp" /><button id="sendBtn" onclick="send()">发送</button><span class="tip" style="color:#f40;margin: 0 20px;"></span>
 <script>
-  const ws = new WebSocket('ws://localhost:3000')
+  const ws = new WebSocket('ws://localhost:3001')
   const inp = document.getElementById('inp')
   const sendBtn = document.getElementById('sendBtn')
   const ul = document.querySelector('ul')
@@ -47,8 +47,14 @@
     let div = document.createElement('div')
     let p = document.createElement('p')
     ul.appendChild(li)
-    let senderFlag = msg.split('#flag#')[1] // 取出发送者的唯一标识
-    let senderMsg = msg.split('#flag#')[0] // 取出发送者的内容
+    let senderFlag=null, senderMsg=null, msgArr = msg.split('#flag#')
+    if(msg.split('#flag#').length === 2) {
+      senderFlag = msgArr[1] // 取出发送者的唯一标识
+      senderMsg = msgArr[0] // 取出发送者的内容
+    } else {  // 以防用户输入内容自带'#flag#'
+      senderFlag = msgArr.pop()
+      senderMsg = msgArr.join('#flag#')
+    }
     div.style = 'width:16px;height:16px;border-radius:50%;margin:0 10px;background-color:#' + senderFlag + ';'
     p.innerHTML = senderMsg
     li.appendChild(div)
